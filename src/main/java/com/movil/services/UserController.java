@@ -12,14 +12,19 @@ import com.movil.exceptions.WrongPasswordException;
 import com.movil.models.Response;
 import com.movil.models.User;
 import com.movil.utils.DBQueries;
+import com.movil.utils.SHA256;
 import com.movil.utils.SinglePropertyRequest;
+import com.movil.utils.UserRegistrationRequest;
 import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -50,7 +55,28 @@ public class UserController {
         return gson.toJson(new Response(true, "", gson.toJson(response), 200));
     }
     
-    //post user registration is missing!
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public String register(String body) 
+    throws NoSuchAlgorithmException, UnsupportedEncodingException{
+        UserRegistrationRequest urr 
+            = gson.fromJson(body, UserRegistrationRequest.class);
+        if(urr.getPwd().length() > 3){
+            if(urr.getPwd().equals(urr.getPwdConfirmation())){
+
+               if(DBQueries.writeUser(urr.getNewUser(), SHA256.hash(urr.getPwd()))){
+                    return gson.toJson(new Response(true, "", "User registered successfully!", 200)); 
+               }else{
+                    return gson.toJson(new Response(false, "It seems to be a connection issue, please try again later.", "", 200)); 
+               }
+            }else{
+                return gson.toJson(new Response(false, "The submitted passwords does not match.", "", 200));  
+            } 
+        }else{
+            return gson.toJson(new Response(false, "The submitted password is invalid.", "", 200));
+        }
+    }
     
     @POST
     @Path("/{username}")
@@ -85,5 +111,33 @@ public class UserController {
         return gson.toJson(response);
     }
     
-    //put info from logout is missing
+    @PUT
+    @Path("/{username}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public String updateUser(@PathParam("username") String username, String body) 
+    throws ParseException{
+        User oldOne = DBQueries.selectUser(username);
+        User newOne = gson.fromJson(body, User.class);
+        HashMap<String, String> changes = User.compare(oldOne, newOne);
+        if(changes.size() > 0){
+            if(DBQueries.modifyUser(username, changes)){
+                return gson.toJson(new Response(true, "", "The changes have been successfully applied!", 200));
+            }else{
+                return gson.toJson(new Response(false, "It seems to be a connection issue, please try again later.", "", 200));
+            }
+        }else{
+            return gson.toJson(new Response(false, "There is no changes to apply.", "", 200));
+        }
+    }
+    
+    @DELETE
+    @Path("/{username}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public String deleteUser(@PathParam("username") String username) {
+        if(DBQueries.deleteUser(username))
+            return gson.toJson(new Response(true, "", "The user has been successfully removed!", 200));
+        else
+            return gson.toJson(new Response(false, "It seems to be a connection issue, please try again later.", "", 200));
+    }
 }

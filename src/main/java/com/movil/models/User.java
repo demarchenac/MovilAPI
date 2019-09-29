@@ -8,6 +8,7 @@ package com.movil.models;
 import java.text.ParseException;
 import java.util.Date;
 import java.text.SimpleDateFormat;
+import java.util.HashMap;
 
 /**
  *
@@ -46,6 +47,30 @@ public class User {
         this.lastSeen = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").parse(lastSeen);
     }
 
+    public static HashMap<String, String> compare(User oldOne, User newOne){
+        HashMap<String, String> differences = new HashMap<>();
+        if(oldOne.username.equals(newOne.username)){
+            if(!oldOne.first_name.equals(newOne.first_name)){
+                differences.put("first_name", newOne.first_name);
+            }else if(!oldOne.last_name.equals(newOne.last_name)){
+                differences.put("last_name", newOne.last_name);
+            }else if(!oldOne.full_name.equals(newOne.full_name)){
+                differences.put("full_name", newOne.full_name);
+            }else if(!oldOne.email.equals(newOne.email)){
+                differences.put("email", newOne.email);
+            }else if(!oldOne.getLastLatString().equals(newOne.getLastLatString())){
+                differences.put("lastLat", newOne.getLastLatString());
+            }else if(!oldOne.getLastLonString().equals(newOne.getLastLonString())){
+                differences.put("lastLon", newOne.getLastLonString());
+            }else if(!oldOne.status.equals(newOne.status)){
+                differences.put("status", newOne.status);
+            }else if(!oldOne.getLastSeenISOFormatted().equals(newOne.getLastSeenISOFormatted())){
+                differences.put("lastSeen", newOne.getLastSeenISOFormatted());
+            }
+        }
+        return differences;
+    }
+    
     public boolean isOnline(){
         return this.status.toLowerCase().trim().equals("online");
     }
@@ -89,6 +114,10 @@ public class User {
     public double getLastLat() {
         return lastLat;
     }
+    
+    public String getLastLatString() {
+        return Double.toString(lastLat);
+    }
 
     public void setLastLat(double lastLat) {
         this.lastLat = lastLat;
@@ -98,6 +127,10 @@ public class User {
         return lastLon;
     }
 
+    public String getLastLonString() {
+        return Double.toString(lastLon);
+    }
+    
     public void setLastLon(double lastLon) {
         this.lastLon = lastLon;
     }
@@ -114,6 +147,10 @@ public class User {
         return lastSeen;
     }
 
+    public String getLastSeenISOFormatted(){
+        return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").format(lastSeen);
+    }
+    
     public void setLastSeen(Date lastSeen) {
         this.lastSeen = lastSeen;
     }

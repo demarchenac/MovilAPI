@@ -6,15 +6,10 @@
 package com.movil.services;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.movil.models.Response;
-import com.movil.models.User;
-import com.movil.utils.DBQueries;
 import com.movil.utils.SinglePropertyRequest;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.text.ParseException;
-import java.util.ArrayList;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
