@@ -1,0 +1,12 @@
+com\movil\services\Configuration.class
+com\movil\exceptions\InvalidPasswordException.class
+com\movil\services\UserController.class
+com\movil\services\UtilController.class
+com\movil\exceptions\WrongPasswordException.class
+com\movil\models\Response.class
+com\movil\models\User.class
+com\movil\utils\DBConnection.class
+com\movil\utils\SHA256.class
+com\movil\utils\DBQueries.class
+com\movil\utils\SinglePropertyRequest.class
+com\movil\utils\Constants.class
