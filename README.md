@@ -9,7 +9,25 @@ Api for the first term of app develompent course on android studio!
 
 ### User Controller Endpoints
 * [GET METHOD] @ (http://ip:8080/MovilAPI/api/users) - This method would return all the users.
-* [POST METHOD] @ (http://ip:8080/MovilAPI/api/users) - **Under development**
+* [POST METHOD] @ (http://ip:8080/MovilAPI/api/users) - This method is used to register users.<br/>
+**The body should look like:**
+  ```
+    {
+        "newUser": {
+            "username": "test",
+            "first_name": "JOHNNY",
+            "last_name": "TEST",
+            "full_name": "JOHNNY TEST",
+            "email": "jtest@uninorte.edu.co",
+            "lastLat": 10.963889,
+            "lastLon": -74.796387,
+            "status": "online",
+            "lastSeen": "2019-09-29 06:21:32.54"
+        },
+        "pwd": "test",
+        "pwdConfirmation": "test"
+    }
+  ```
 * [GET METHOD] @ (http://ip:8080/MovilAPI/api/users/:username) - This method would return the information of an especific user.
 * [POST METHOD] @ (http://ip:8080/MovilAPI/api/users/:username) - This method would verify if a user exists and if its data corresponds with its password.<br/>
 **The body should look like:**
@@ -18,16 +36,74 @@ Api for the first term of app develompent course on android studio!
       "data" : "some password" 
     }
   ```
-* [PUT METHOD] @ (http://ip:8080/MovilAPI/api/users/:username) - **Under development**
-* [DELETE METHOD] @ (http://ip:8080/MovilAPI/api/users/:username) - **Under development**
+* [PUT METHOD] @ (http://ip:8080/MovilAPI/api/users/:username) - This method updates the user info.<br/>
+**The body should look like:**
+  ```
+    {
+      "username": "test",
+      "first_name": "CARLOS",
+      "last_name": "TEST",
+      "full_name": "JOHNNY TEST",
+      "email": "jtest@uninorte.edu.co",
+      "lastLat": 10.963889,
+      "lastLon": -74.796387,
+      "status": "online",
+      "lastSeen": "2019-09-29 08:12:32.54"
+    }
+  ```
+* [DELETE METHOD] @ (http://ip:8080/MovilAPI/api/users/:username) - This method deletes an user from the DB.
 
 ### Location Controller Endpoints
-- **Under development**
+* [GET METHOD] @ (http://ip:8080/MovilAPI/api/locations) - This method returns all the updated locations of the users.
+* [POST METHOD] @ (http://ip:8080/MovilAPI/api/locations) - This method is used to update/registe a new location.<br/>
+**The body should look like:**
+  ```
+    {
+      "lat": 11.000158,
+      "lon": -74.789525,
+      "location_timestamp": "2019-09-29 14:21:47.56",
+      "username": "demarchenac"
+    }
+  ```
+* [GET METHOD] @ (http://ip:8080/MovilAPI/api/locations/:username) - This method will return the registered locations of an user.
+* [POST METHOD] @ (http://ip:8080/MovilAPI/api/locations) - This method is used to retrieve a group of a user locations within a date range.<br/>
+**The body should look like:**
+  ```
+    {
+      "first_value": "2019-09-28 00:00:00.001",
+      "last_value": "2019-09-29 16:00:00.002"
+    }
+  ```
 
 ### Message Controller Endpoints
-- **Under development**
+* [GET METHOD] @ (http://ip:8080/MovilAPI/api/messages) - This method returns all messages ever sent.
+* [POST METHOD] @ (http://ip:8080/MovilAPI/api/messages) - This method is used to post/send a new message.<br/>
+**The body should look like:**
+  ```
+    {
+      "body": "Probando envio de mensajes 001",
+      "message_timestamp": "2019-09-29 14:53:10.15",
+      "sender": "demarchenac"
+    }
+  ```
+* [POST METHOD] @ (http://ip:8080/MovilAPI/api/messages/withinDate) - This method is used to retrive a group of messages sent within a date range.<br/>
+**The body should look like:**
+  ```
+    {
+      "first_value": "2019-09-28 00:00:00.001",
+      "last_value": "2019-09-29 16:00:00.002"
+    }
+  ```
+* [POST METHOD] @ (http://ip:8080/MovilAPI/api/messages/withinRangeLimited) - This method is used to retrive a group of messages sent within a date range with a limit of the 100 most recent messages.<br/>
+**The body should look like:**
+  ```
+    {
+      "first_value": "2019-09-28 00:00:00.001",
+      "last_value": "2019-09-29 16:00:00.002"
+    }
+  ```
 
-### Message Controller Endpoints
+### Utils Controller Endpoints
 * [GET METHOD] @ (http://ip:8080/MovilAPI/api/utils) - This method logs the ip of the machine that holds this service.
 
 ## Installation
