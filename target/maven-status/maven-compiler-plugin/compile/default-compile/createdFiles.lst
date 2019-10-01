@@ -7,9 +7,11 @@ com\movil\utils\UserRegistrationRequest.class
 com\movil\exceptions\WrongPasswordException.class
 com\movil\models\Response.class
 com\movil\models\User.class
+com\prog\distribuida\tcp\TCPServiceManagerCallerInterface.class
 com\movil\services\MessageController.class
 com\movil\utils\DBConnection.class
 com\movil\utils\SHA256.class
+com\prog\distribuida\tcp\ClientSocketManager.class
 com\movil\models\Message.class
 com\movil\utils\DBQueries.class
 com\movil\utils\SinglePropertyRequest.class

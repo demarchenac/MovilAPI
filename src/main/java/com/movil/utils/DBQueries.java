@@ -407,6 +407,7 @@ public class DBQueries {
             pstmt.executeUpdate();
             System.out.println("[API] Updates fetched!");
         }catch(SQLException e){
+            e.printStackTrace();
             success = false;
         }finally{
             try {

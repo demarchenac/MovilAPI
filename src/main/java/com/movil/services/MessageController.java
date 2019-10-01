@@ -12,8 +12,17 @@ import com.movil.models.Response;
 import com.movil.models.User;
 import com.movil.utils.DBQueries;
 import com.movil.utils.DualPropertyRequest;
+import com.prog.distribuida.tcp.ClientSocketManager;
+import com.prog.distribuida.tcp.TCPServiceManagerCallerInterface;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.Socket;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -29,14 +38,25 @@ import javax.ws.rs.core.MediaType;
  * @author Andres Movilla
  */
 @Path("messages")
-public class MessageController {
+public class MessageController implements TCPServiceManagerCallerInterface{
     private final Gson gson;
+    ClientSocketManager clientSocketManager;
+    Properties props;
 
     public MessageController() {
         this.gson = new GsonBuilder()
             .setPrettyPrinting()
             .setDateFormat("yyyy-MM-dd HH:mm:ss.SSS")
             .create();
+        props = new Properties();
+        try {
+            System.out.println("[API] Loading props");
+            InputStream is = LocationController.class.getClassLoader().getResourceAsStream("config.properties");
+            props.load(is);
+        } catch (IOException ex) {
+            System.out.println(ex.getMessage());
+            props = null;
+        }
     }
 
     @GET
@@ -55,10 +75,35 @@ public class MessageController {
             User oldUser = DBQueries.selectUser(message.getSender());
             User user = DBQueries.selectUser(message.getSender());
             user.setLastSeen(message.getMessage_timestamp());
-            if(DBQueries.modifyUser(user.getUsername(), User.compare(oldUser, user))){
-                return gson.toJson(new Response(true, "", "The message has been successfully sent!", 200));
+            HashMap<String, String> changes = User.compare(oldUser, user);
+            if (changes.size() > 0) {
+                if(DBQueries.modifyUser(user.getUsername(), User.compare(oldUser, user))){
+                    if (props != null) {
+                        clientSocketManager = new ClientSocketManager(
+                                props.getProperty("SOCKET_CONNECTION_IP"),
+                                Integer.parseInt(props.getProperty("SOCKET_CONNECTION_PORT")),
+                                this);
+                        if (clientSocketManager != null) {
+                            try {
+                                Thread.sleep(10);
+                            } catch (InterruptedException ex) {
+                                Logger.getLogger(LocationController.class.getName()).log(Level.SEVERE, null, ex);
+                            }
+                            clientSocketManager.SendMessage("update@messages");
+                            try {
+                                Thread.sleep(10);
+                            } catch (InterruptedException ex) {
+                                Logger.getLogger(LocationController.class.getName()).log(Level.SEVERE, null, ex);
+                            }
+                            clientSocketManager.clearLastSocket();
+                        }
+                    }
+                    return gson.toJson(new Response(true, "", "The message has been successfully sent!", 200));
+                }else{
+                    return gson.toJson(new Response(false, "It seems to be a connection issue, please try again later.", "", 200)); 
+                }
             }else{
-                return gson.toJson(new Response(false, "It seems to be a connection issue, please try again later.", "", 200)); 
+                return gson.toJson(new Response(false, "There are no actual changes to be made...", "", 200));
             }
         }else{
            return gson.toJson(new Response(false, "It seems to be a connection issue, please try again later.", "", 200)); 
@@ -84,5 +129,15 @@ public class MessageController {
         ArrayList<Message> response 
             = DBQueries.getMessagesWithinDateLimited(dpr.getFirst_value(), dpr.getLast_value());
         return gson.toJson(new Response(true, "", gson.toJson(response), 200));
+    }
+
+    @Override
+    public void MessageReceiveFromClient(Socket clientSocket, byte[] data) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void ErrorHasBeenThrown(Exception error) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }
