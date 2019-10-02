@@ -19,7 +19,9 @@ import com.movil.utils.UserRegistrationRequest;
 import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -93,6 +95,7 @@ public class UserController {
             query = DBQueries.selectUserWithPwd(username, spr.getFirst_value());
             HashMap<String,String> hm = new HashMap<>();
             hm.put("ip", spr.getLast_value());
+            hm.put("lastSeen", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").format(new Date()));
             if (DBQueries.modifyUser(username, hm)) {
                 response = new Response(true, "", gson.toJson(query), 200);
             } else {
