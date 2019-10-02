@@ -65,6 +65,8 @@ public class LocationController implements TCPServiceManagerCallerInterface {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public String getUsers() throws ParseException {
+        System.out.println("------------------------------------------------");
+        System.out.println("[API] GET LOCATIONS");
         ArrayList<RTL> response = DBQueries.getCurrentLocations();
         return gson.toJson(new Response(true, "", gson.toJson(response), 200));
     }
@@ -74,6 +76,8 @@ public class LocationController implements TCPServiceManagerCallerInterface {
     @Produces(MediaType.APPLICATION_JSON)
     public String writeLocation(String body)
     throws ParseException, InterruptedException {
+        System.out.println("------------------------------------------------");
+        System.out.println("[API] WRITE LOCATION");
         Location location = gson.fromJson(body, Location.class);
         if (DBQueries.writeLocation(location)) {
             System.out.println("[API] Location written!");
@@ -86,6 +90,7 @@ public class LocationController implements TCPServiceManagerCallerInterface {
             if (changes.size() > 0) {
                 if (DBQueries.modifyUser(user.getUsername(), changes)) {
                     if (props != null) {
+                        System.out.println("[API] CREATING SOCKET");
                         clientSocketManager = new ClientSocketManager(
                                 props.getProperty("SOCKET_CONNECTION_IP"),
                                 Integer.parseInt(props.getProperty("SOCKET_CONNECTION_PORT")),
@@ -96,6 +101,7 @@ public class LocationController implements TCPServiceManagerCallerInterface {
                             } catch (InterruptedException ex) {
                                 Logger.getLogger(LocationController.class.getName()).log(Level.SEVERE, null, ex);
                             }
+                            System.out.println("[API] NOTIFY PUSH/PULL NOTIFICATION SERVICE");
                             clientSocketManager.SendMessage("update@locations");
                             try {
                                 Thread.sleep(10);
@@ -121,6 +127,8 @@ public class LocationController implements TCPServiceManagerCallerInterface {
     @Path("/{username}")
     @Produces(MediaType.APPLICATION_JSON)
     public String getUserLocations(@PathParam("username") String username) throws ParseException {
+        System.out.println("------------------------------------------------");
+        System.out.println("[API] GET USER LOCATIONS");
         ArrayList<Location> response = DBQueries.getUserLocations(username);
         return gson.toJson(new Response(true, "", gson.toJson(response), 200));
     }
@@ -131,6 +139,8 @@ public class LocationController implements TCPServiceManagerCallerInterface {
     @Produces(MediaType.APPLICATION_JSON)
     public String getUserLocationsWithinDate(@PathParam("username") String username, String body)
             throws ParseException {
+        System.out.println("------------------------------------------------");
+        System.out.println("[API] GET USER LOCATIONS WITHIN RANGE");
         DualPropertyRequest dpr = gson.fromJson(body, DualPropertyRequest.class);
         ArrayList<Location> response
                 = DBQueries.getUserLocationsWithinDate(username, dpr.getFirst_value(), dpr.getLast_value());

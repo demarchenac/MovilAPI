@@ -54,6 +54,8 @@ public class UserController {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public String getUsers() throws ParseException{
+        System.out.println("------------------------------------------------");
+        System.out.println("[API] GET USERS");
         ArrayList<User> response = DBQueries.selectAllUsers();
         return gson.toJson(new Response(true, "", gson.toJson(response), 200));
     }
@@ -63,6 +65,8 @@ public class UserController {
     @Produces(MediaType.APPLICATION_JSON)
     public String register(String body) 
     throws NoSuchAlgorithmException, UnsupportedEncodingException{
+        System.out.println("------------------------------------------------");
+        System.out.println("[API] REGISTER");
         UserRegistrationRequest urr 
             = gson.fromJson(body, UserRegistrationRequest.class);
         if(urr.getPwd().length() > 3){
@@ -86,6 +90,8 @@ public class UserController {
     @Produces(MediaType.APPLICATION_JSON)
     public String login(@PathParam("username") String username, String body) 
     throws ParseException, NoSuchAlgorithmException, UnsupportedEncodingException {
+        System.out.println("------------------------------------------------");
+        System.out.println("[API] LOGIN");
         DualPropertyRequest spr 
             = gson.fromJson(body, DualPropertyRequest.class);
         User query;
@@ -114,6 +120,8 @@ public class UserController {
     @Produces(MediaType.APPLICATION_JSON)
     public String getUser(@PathParam("username") String username) 
     throws ParseException, NoSuchAlgorithmException, UnsupportedEncodingException {
+        System.out.println("------------------------------------------------");
+        System.out.println("[API] GET USER");
         User query;
         Response response;
         query = DBQueries.selectUser(username);
@@ -127,6 +135,8 @@ public class UserController {
     @Produces(MediaType.APPLICATION_JSON)
     public String updateUser(@PathParam("username") String username, String body) 
     throws ParseException{
+        System.out.println("------------------------------------------------");
+        System.out.println("[API] UPDATE USER");
         User oldOne = DBQueries.selectUser(username);
         User newOne = gson.fromJson(body, User.class);
         HashMap<String, String> changes = User.compare(oldOne, newOne);
@@ -145,6 +155,8 @@ public class UserController {
     @Path("/{username}")
     @Produces(MediaType.APPLICATION_JSON)
     public String deleteUser(@PathParam("username") String username) {
+        System.out.println("------------------------------------------------");
+        System.out.println("[API] DELETE USER");
         if(DBQueries.deleteUser(username))
             return gson.toJson(new Response(true, "", "The user has been successfully removed!", 200));
         else
@@ -155,6 +167,8 @@ public class UserController {
     @Path("/updateIp/{username}")
     @Produces(MediaType.APPLICATION_JSON)
     public String updateUserIp(@PathParam("username") String username, String body) {
+        System.out.println("------------------------------------------------");
+        System.out.println("[API] UPDATE USER IP");
         SinglePropertyRequest spr 
             = gson.fromJson(body, SinglePropertyRequest.class);
         if(DBQueries.modifyUserIp(username, spr.getData()))
@@ -167,6 +181,8 @@ public class UserController {
     @Path("/toggleStatus/{ip}")
     @Produces(MediaType.APPLICATION_JSON)
     public String toggleUserStatus(@PathParam("ip") String ip, String body) {
+        System.out.println("------------------------------------------------");
+        System.out.println("[API] UPDATE USER STATUS");
         SinglePropertyRequest spr 
             = gson.fromJson(body, SinglePropertyRequest.class);
         if(DBQueries.modifyUserIp(ip, spr.getData()))
@@ -179,6 +195,8 @@ public class UserController {
     @Path("/logout/{username}")
     @Produces(MediaType.APPLICATION_JSON)
     public String logout(@PathParam("username") String username) {
+        System.out.println("------------------------------------------------");
+        System.out.println("[API] LOGOUT");
         HashMap<String,String> hm = new HashMap<>();
         hm.put("ip", "0.0.0.0");
         hm.put("lastSeen", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").format(new Date()));

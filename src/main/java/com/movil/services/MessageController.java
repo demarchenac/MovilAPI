@@ -61,7 +61,8 @@ public class MessageController implements TCPServiceManagerCallerInterface{
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public String getMessages() throws ParseException{
+    public String getMessages() throws ParseException{System.out.println("------------------------------------------------");
+        System.out.println("[API] GET MESSAGES");
         ArrayList<Message> response = DBQueries.getMessages();
         return gson.toJson(new Response(true, "", gson.toJson(response), 200));
     }
@@ -70,6 +71,8 @@ public class MessageController implements TCPServiceManagerCallerInterface{
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public String writeMessage(String body) throws ParseException{
+        System.out.println("------------------------------------------------");
+        System.out.println("[API] WRITE MESSAGE");
         Message message = gson.fromJson(body, Message.class);
         if(DBQueries.writeMessage(message)){
             User oldUser = DBQueries.selectUser(message.getSender());
@@ -79,6 +82,7 @@ public class MessageController implements TCPServiceManagerCallerInterface{
             if (changes.size() > 0) {
                 if(DBQueries.modifyUser(user.getUsername(), User.compare(oldUser, user))){
                     if (props != null) {
+                        System.out.println("[API] CREATING SOCKET");
                         clientSocketManager = new ClientSocketManager(
                                 props.getProperty("SOCKET_CONNECTION_IP"),
                                 Integer.parseInt(props.getProperty("SOCKET_CONNECTION_PORT")),
@@ -89,6 +93,7 @@ public class MessageController implements TCPServiceManagerCallerInterface{
                             } catch (InterruptedException ex) {
                                 Logger.getLogger(LocationController.class.getName()).log(Level.SEVERE, null, ex);
                             }
+                            System.out.println("[API] NOTIFY PUSH/PULL NOTIFICATION SERVICE");
                             clientSocketManager.SendMessage("update@messages");
                             try {
                                 Thread.sleep(10);
@@ -115,6 +120,8 @@ public class MessageController implements TCPServiceManagerCallerInterface{
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public String getMessagesWithinRange(String body) throws ParseException{
+        System.out.println("------------------------------------------------");
+        System.out.println("[API] GET MESSAGES WITHIN RANGE");
         DualPropertyRequest dpr = gson.fromJson(body, DualPropertyRequest.class);
         ArrayList<Message> response = DBQueries.getMessagesWithinDate(dpr.getFirst_value(), dpr.getLast_value());
         return gson.toJson(new Response(true, "", gson.toJson(response), 200));
@@ -125,6 +132,8 @@ public class MessageController implements TCPServiceManagerCallerInterface{
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public String getMessagesWithinDateLimited(String body) throws ParseException{
+        System.out.println("------------------------------------------------");
+        System.out.println("[API] GET MESSAGES WITHIN RANGE LIMITED BY 100");
         DualPropertyRequest dpr = gson.fromJson(body, DualPropertyRequest.class);
         ArrayList<Message> response 
             = DBQueries.getMessagesWithinDateLimited(dpr.getFirst_value(), dpr.getLast_value());
