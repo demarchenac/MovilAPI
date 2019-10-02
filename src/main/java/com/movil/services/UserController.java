@@ -67,7 +67,6 @@ public class UserController {
             = gson.fromJson(body, UserRegistrationRequest.class);
         if(urr.getPwd().length() > 3){
             if(urr.getPwd().equals(urr.getPwdConfirmation())){
-
                if(DBQueries.writeUser(urr.getNewUser(), SHA256.hash(urr.getPwd()))){
                     return gson.toJson(new Response(true, "", "User registered successfully!", 200)); 
                }else{
