@@ -16,13 +16,21 @@ import com.movil.utils.DualPropertyRequest;
 import com.movil.utils.SHA256;
 import com.movil.utils.SinglePropertyRequest;
 import com.movil.utils.UserRegistrationRequest;
+import com.prog.distribuida.tcp.ClientSocketManager;
+import com.prog.distribuida.tcp.TCPServiceManagerCallerInterface;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.net.Socket;
 import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -41,14 +49,25 @@ import javax.ws.rs.core.MediaType;
  * @author Andres Movilla
  */
 @Path("users")
-public class UserController {
+public class UserController implements TCPServiceManagerCallerInterface {
     private final Gson gson;
-
+    ClientSocketManager clientSocketManager;
+    Properties props;
+    
     public UserController() {
         this.gson = new GsonBuilder()
             .setPrettyPrinting()
             .setDateFormat("yyyy-MM-dd HH:mm:ss.SSS")
             .create();
+        props = new Properties();
+        try {
+            System.out.println("[API] Loading props");
+            InputStream is = LocationController.class.getClassLoader().getResourceAsStream("config.properties");
+            props.load(is);
+        } catch (IOException ex) {
+            System.out.println(ex.getMessage());
+            props = null;
+        }
     }
     
     @GET
@@ -103,6 +122,28 @@ public class UserController {
             hm.put("lastSeen", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").format(new Date()));
             hm.put("status", "online");
             if (DBQueries.modifyUser(username, hm)) {
+                if (props != null) {
+                        System.out.println("[API] CREATING SOCKET");
+                        clientSocketManager = new ClientSocketManager(
+                                props.getProperty("SOCKET_CONNECTION_IP"),
+                                Integer.parseInt(props.getProperty("SOCKET_CONNECTION_PORT")),
+                                this);
+                        if (clientSocketManager != null) {
+                            try {
+                                Thread.sleep(10);
+                            } catch (InterruptedException ex) {
+                                Logger.getLogger(LocationController.class.getName()).log(Level.SEVERE, null, ex);
+                            }
+                            System.out.println("[API] NOTIFY PUSH/PULL NOTIFICATION SERVICE");
+                            clientSocketManager.SendMessage("update@locations");
+                            try {
+                                Thread.sleep(10);
+                            } catch (InterruptedException ex) {
+                                Logger.getLogger(LocationController.class.getName()).log(Level.SEVERE, null, ex);
+                            }
+                            clientSocketManager.clearLastSocket();
+                        }
+                    }
                 response = new Response(true, "", gson.toJson(query), 200);
             } else {
                 response = new Response(false, "Could not update IP.","",418);
@@ -201,9 +242,42 @@ public class UserController {
         hm.put("ip", "0.0.0.0");
         hm.put("lastSeen", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").format(new Date()));
         hm.put("status", "offline");
-        if(DBQueries.modifyUser(username, hm))
+        if(DBQueries.modifyUser(username, hm)){
+            if (props != null) {
+                System.out.println("[API] CREATING SOCKET");
+                clientSocketManager = new ClientSocketManager(
+                        props.getProperty("SOCKET_CONNECTION_IP"),
+                        Integer.parseInt(props.getProperty("SOCKET_CONNECTION_PORT")),
+                        this);
+                if (clientSocketManager != null) {
+                    try {
+                        Thread.sleep(10);
+                    } catch (InterruptedException ex) {
+                        Logger.getLogger(LocationController.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                    System.out.println("[API] NOTIFY PUSH/PULL NOTIFICATION SERVICE");
+                    clientSocketManager.SendMessage("update@locations");
+                    try {
+                        Thread.sleep(10);
+                    } catch (InterruptedException ex) {
+                        Logger.getLogger(LocationController.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                    clientSocketManager.clearLastSocket();
+                }
+            }
             return gson.toJson(new Response(true, "", "The user has logged out successfully!", 200));
-        else
+        }else{
             return gson.toJson(new Response(false, "It seems to be a connection issue, please try again later.", "", 200));
+        }
+    }
+
+    @Override
+    public void MessageReceiveFromClient(Socket arg0, byte[] arg1) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void ErrorHasBeenThrown(Exception arg0) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }
