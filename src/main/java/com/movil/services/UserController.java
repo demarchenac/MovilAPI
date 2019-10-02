@@ -96,6 +96,7 @@ public class UserController {
             HashMap<String,String> hm = new HashMap<>();
             hm.put("ip", spr.getLast_value());
             hm.put("lastSeen", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").format(new Date()));
+            hm.put("status", "online");
             if (DBQueries.modifyUser(username, hm)) {
                 response = new Response(true, "", gson.toJson(query), 200);
             } else {
@@ -166,11 +167,25 @@ public class UserController {
     @PUT
     @Path("/toggleStatus/{ip}")
     @Produces(MediaType.APPLICATION_JSON)
-    public String toggleUserStatus(@PathParam("username") String ip, String body) {
+    public String toggleUserStatus(@PathParam("ip") String ip, String body) {
         SinglePropertyRequest spr 
             = gson.fromJson(body, SinglePropertyRequest.class);
         if(DBQueries.modifyUserIp(ip, spr.getData()))
             return gson.toJson(new Response(true, "", "The user status has been successfully changed!", 200));
+        else
+            return gson.toJson(new Response(false, "It seems to be a connection issue, please try again later.", "", 200));
+    }
+    
+    @GET
+    @Path("/logout/{username}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public String logout(@PathParam("username") String username) {
+        HashMap<String,String> hm = new HashMap<>();
+        hm.put("ip", "0.0.0.0");
+        hm.put("lastSeen", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").format(new Date()));
+        hm.put("status", "offline");
+        if(DBQueries.modifyUser(username, hm))
+            return gson.toJson(new Response(true, "", "The user has logged out successfully!", 200));
         else
             return gson.toJson(new Response(false, "It seems to be a connection issue, please try again later.", "", 200));
     }
