@@ -12,6 +12,7 @@ import com.movil.exceptions.WrongPasswordException;
 import com.movil.models.Response;
 import com.movil.models.User;
 import com.movil.utils.DBQueries;
+import com.movil.utils.DualPropertyRequest;
 import com.movil.utils.SHA256;
 import com.movil.utils.SinglePropertyRequest;
 import com.movil.utils.UserRegistrationRequest;
@@ -84,13 +85,19 @@ public class UserController {
     @Produces(MediaType.APPLICATION_JSON)
     public String login(@PathParam("username") String username, String body) 
     throws ParseException, NoSuchAlgorithmException, UnsupportedEncodingException {
-        SinglePropertyRequest spr 
-            = gson.fromJson(body, SinglePropertyRequest.class);
+        DualPropertyRequest spr 
+            = gson.fromJson(body, DualPropertyRequest.class);
         User query;
         Response response;
         try {
-            query = DBQueries.selectUserWithPwd(username, spr.getData());
-            response = new Response(true, "", gson.toJson(query), 200);
+            query = DBQueries.selectUserWithPwd(username, spr.getFirst_value());
+            HashMap<String,String> hm = new HashMap<>();
+            hm.put("ip", spr.getLast_value());
+            if (DBQueries.modifyUser(username, hm)) {
+                response = new Response(true, "", gson.toJson(query), 200);
+            } else {
+                response = new Response(false, "Could not update IP.","",418);
+            }
         } catch (WrongPasswordException ex) {
             response = new Response(false, ex.getErrormsg(), "", 200);
         } catch (InvalidPasswordException ex) {
