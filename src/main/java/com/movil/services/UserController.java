@@ -140,4 +140,28 @@ public class UserController {
         else
             return gson.toJson(new Response(false, "It seems to be a connection issue, please try again later.", "", 200));
     }
+    
+    @PUT
+    @Path("/updateIp/{username}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public String updateUserIp(@PathParam("username") String username, String body) {
+        SinglePropertyRequest spr 
+            = gson.fromJson(body, SinglePropertyRequest.class);
+        if(DBQueries.modifyUserIp(username, spr.getData()))
+            return gson.toJson(new Response(true, "", "The user ip has been successfully changed!", 200));
+        else
+            return gson.toJson(new Response(false, "It seems to be a connection issue, please try again later.", "", 200));
+    }
+    
+    @PUT
+    @Path("/toggleStatus/{ip}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public String toggleUserStatus(@PathParam("username") String ip, String body) {
+        SinglePropertyRequest spr 
+            = gson.fromJson(body, SinglePropertyRequest.class);
+        if(DBQueries.modifyUserIp(ip, spr.getData()))
+            return gson.toJson(new Response(true, "", "The user status has been successfully changed!", 200));
+        else
+            return gson.toJson(new Response(false, "It seems to be a connection issue, please try again later.", "", 200));
+    }
 }

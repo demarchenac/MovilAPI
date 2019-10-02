@@ -27,6 +27,7 @@ public class User {
     private double lastLon;
     private String status;
     private Date lastSeen;
+    private String ip;
 
     public User() throws ParseException {
     }
@@ -34,7 +35,7 @@ public class User {
     public User(
         String username, String first_name, String last_name, String name, 
         String email, String lastLat, String lastLon, String status, 
-        String lastSeen
+        String lastSeen, String ip
     ) throws ParseException {
         this.username = username;
         this.first_name = first_name;
@@ -45,6 +46,7 @@ public class User {
         this.lastLon = Double.parseDouble(lastLon);
         this.status = status;
         this.lastSeen = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").parse(lastSeen);
+        this.ip = ip;
     }
 
     public static HashMap<String, String> compare(User oldOne, User newOne){
@@ -170,6 +172,12 @@ public class User {
     public void setLast_name(String last_name) {
         this.last_name = last_name;
     }
-    
-    
+
+    public String getIp() {
+        return ip;
+    }
+
+    public void setIp(String ip) {
+        this.ip = ip;
+    }
 }

@@ -53,7 +53,8 @@ public class DBQueries {
                         rs.getString("lastLat"),
                         rs.getString("lastLon"),
                         rs.getString("status"),
-                        rs.getString("lastSeen")
+                        rs.getString("lastSeen"),
+                        rs.getString("ip")
                     )
                 );
             }
@@ -563,5 +564,57 @@ public class DBQueries {
             }
         }
         return queryResult;
+    }
+    
+    public static final boolean modifyUserIp(String username, String ip){
+        boolean success = true;
+        String query = "UPDATE users SET ip = ? WHERE username = ?;";
+        Connection dbConnection = DBConnection.create();
+        try{
+            PreparedStatement pstmt = dbConnection.prepareStatement(query);
+            pstmt.setString(1, ip);
+            pstmt.setString(2, username);
+            System.out.println("[API] Fetching updates...");
+            pstmt.executeUpdate();
+            System.out.println("[API] Updates fetched!");
+        }catch(SQLException e){
+            success = false;
+        }finally{
+            try {
+                if (dbConnection != null) {
+                    System.out.println("[API] Closing connection...");
+                    dbConnection.close();
+                }
+            } catch (SQLException ex) {
+                System.out.println(ex.getMessage());
+            }
+        }
+        return success;
+    }
+    
+    public static final boolean modifyUserStatusWithIp(String ip, String status){
+        boolean success = true;
+        String query = "UPDATE users SET status = ? WHERE ip = ?;";
+        Connection dbConnection = DBConnection.create();
+        try{
+            PreparedStatement pstmt = dbConnection.prepareStatement(query);
+            pstmt.setString(1, status);
+            pstmt.setString(2, ip);
+            System.out.println("[API] Fetching updates...");
+            pstmt.executeUpdate();
+            System.out.println("[API] Updates fetched!");
+        }catch(SQLException e){
+            success = false;
+        }finally{
+            try {
+                if (dbConnection != null) {
+                    System.out.println("[API] Closing connection...");
+                    dbConnection.close();
+                }
+            } catch (SQLException ex) {
+                System.out.println(ex.getMessage());
+            }
+        }
+        return success;
     }
 } 
