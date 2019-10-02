@@ -97,6 +97,7 @@ public class DBQueries {
                             queryResult.setLastLon(rs.getString("lastLon"));
                             queryResult.setStatus(rs.getString("status"));
                             queryResult.setLastSeen(rs.getString("lastSeen"));
+                            queryResult.setIp(rs.getString("ip"));
                         }else{
                             throw new WrongPasswordException("Wrong password");
                         }
