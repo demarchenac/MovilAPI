@@ -146,6 +146,25 @@ public class LocationController implements TCPServiceManagerCallerInterface {
                 = DBQueries.getUserLocationsWithinDate(username, dpr.getFirst_value(), dpr.getLast_value());
         return gson.toJson(new Response(true, "", gson.toJson(response), 200));
     }
+    
+    @POST
+    @Path("/{username}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public String getUserStats(@PathParam("username") String username, String body)
+            throws ParseException {
+        System.out.println("------------------------------------------------");
+        System.out.println("[API] GET USER LOCATIONS WITHIN RANGE");
+        DualPropertyRequest dpr = gson.fromJson(body, DualPropertyRequest.class);
+        ArrayList<Location> response
+                = DBQueries.getUserLocationsWithinDate(username, dpr.getFirst_value(), dpr.getLast_value());
+        DualPropertyRequest stats 
+            = new DualPropertyRequest(
+                "" +Location.getTotalDistance(response), 
+                "" +Location.getPromSpeed(response)
+            );
+        return gson.toJson(new Response(true, "", gson.toJson(stats), 200));
+    }
 
     @Override
     public void MessageReceiveFromClient(Socket clientSocket, byte[] data) {

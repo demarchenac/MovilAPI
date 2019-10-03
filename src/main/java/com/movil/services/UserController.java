@@ -153,6 +153,11 @@ public class UserController implements TCPServiceManagerCallerInterface {
         } catch (InvalidPasswordException ex) {
             response = new Response(false, ex.getErrormsg(), "", 200);
         }
+        try {
+            Thread.sleep(10);
+        } catch (InterruptedException ex) {
+            Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, null, ex);
+        }
         return gson.toJson(response);
     }
     
